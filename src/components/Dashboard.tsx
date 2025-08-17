@@ -28,6 +28,7 @@ import GmailSetupDialog from './GmailSetupDialog';
 import GmailSyncDialog from './GmailSyncDialog';
 import AccountManager from './AccountManager';
 import { SyncService } from '../services/syncService';
+import { useAuth } from '../contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -43,6 +44,8 @@ const Dashboard: React.FC = () => {
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('success');
   const [isGmailConnected, setIsGmailConnected] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  const { logout } = useAuth();
 
 
   // Initialize dashboard
@@ -206,6 +209,16 @@ const Dashboard: React.FC = () => {
     } catch (error) {
       console.error('Error disconnecting Gmail:', error);
       showSnackbar('Error disconnecting Gmail', 'error');
+    }
+  };
+
+  const handleFirebaseLogout = async () => {
+    try {
+      await logout();
+      showSnackbar('Logged out successfully', 'success');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      showSnackbar('Error logging out', 'error');
     }
   };
 
@@ -410,10 +423,20 @@ const Dashboard: React.FC = () => {
               color="inherit"
               startIcon={<LogoutIcon />}
               onClick={handleGmailDisconnect}
+              sx={{ mr: 1 }}
             >
               Disconnect
             </Button>
           )}
+          
+          <Button
+            color="inherit"
+            startIcon={<LogoutIcon />}
+            onClick={handleFirebaseLogout}
+            sx={{ ml: 'auto' }}
+          >
+            Logout
+          </Button>
         </Toolbar>
       </AppBar>
 

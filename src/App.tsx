@@ -2,6 +2,8 @@ import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Dashboard from './components/Dashboard';
+import { AuthProvider } from './contexts/AuthContext';
+import PrivateRoute from './components/PrivateRoute';
 
 const theme = createTheme({
   palette: {
@@ -56,7 +58,11 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Dashboard />
+      <AuthProvider>
+        <PrivateRoute>
+          <Dashboard />
+        </PrivateRoute>
+      </AuthProvider>
     </ThemeProvider>
   );
 }
