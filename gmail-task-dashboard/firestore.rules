@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Rules for tasks collection
+    match /tasks/{taskId} {
+      // Allow read and write access to all tasks
+      // In production, you might want to restrict this to authenticated users
+      allow read, write: if true;
+      
+      // Validate task data structure on write operations
+      allow create, update: if validateTaskData(resource.data);
+    }
+    
+    // Rules for any future collections (e.g., user preferences, gmail configs)
+    match /users/{userId} {
+      // Allow users to read and write their own data only
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Gmail configurations (if you plan to store them)
+    match /gmail_configs/{configId} {
+      // Allow read and write for now - can be restricted later
+      allow read, write: if true;
+    }
+    
+    // Function to validate task data structure
+    function validateTaskData(data) {
+      return data.keys().hasAll(['title', 'description', 'priority', 'label', 'completed', 'createdAt', 'updatedAt', 'source']) &&
+             data.title is string &&
+             data.description is string &&
+             data.priority in ['low', 'medium', 'high', 'urgent'] &&
+             data.label is string &&
+             data.completed is bool &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
+             data.source in ['gmail', 'manual'];
+    }
+  }
+}

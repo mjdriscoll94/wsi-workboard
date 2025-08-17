@@ -1,0 +1,18 @@
+# Firebase Configuration
+# Get these values from Firebase Console > Project Settings > General > Your apps
+REACT_APP_FIREBASE_API_KEY=your_firebase_api_key_here
+REACT_APP_FIREBASE_AUTH_DOMAIN=your_project_id.firebaseapp.com
+REACT_APP_FIREBASE_PROJECT_ID=your_project_id_here
+REACT_APP_FIREBASE_STORAGE_BUCKET=your_project_id.appspot.com
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id_here
+REACT_APP_FIREBASE_APP_ID=your_firebase_app_id_here
+
+# Google API Configuration
+# Get these from Google Cloud Console > APIs & Services > Credentials
+REACT_APP_GOOGLE_CLIENT_ID=your_google_client_id_here.apps.googleusercontent.com
+REACT_APP_GOOGLE_API_KEY=your_google_api_key_here
+
+# Instructions:
+# 1. Copy this file to .env.local
+# 2. Replace all "your_*_here" values with your actual configuration
+# 3. Never commit .env.local to version control

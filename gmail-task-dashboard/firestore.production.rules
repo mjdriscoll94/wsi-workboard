@@ -1,0 +1,56 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Production rules - requires authentication
+    
+    // Rules for tasks collection - user-specific
+    match /tasks/{taskId} {
+      // Only authenticated users can access tasks
+      // Each user can only access their own tasks
+      allow read, write: if request.auth != null && 
+                           (resource == null || resource.data.userId == request.auth.uid);
+      
+      // Validate task data on create/update
+      allow create: if request.auth != null && 
+                      validateTaskData(request.resource.data) &&
+                      request.resource.data.userId == request.auth.uid;
+                      
+      allow update: if request.auth != null && 
+                      resource.data.userId == request.auth.uid &&
+                      validateTaskData(request.resource.data) &&
+                      request.resource.data.userId == request.auth.uid;
+    }
+    
+    // User profile and preferences
+    match /users/{userId} {
+      // Users can only access their own profile
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Gmail configurations per user
+    match /users/{userId}/gmail_configs/{configId} {
+      // Users can only access their own Gmail configs
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Function to validate task data structure
+    function validateTaskData(data) {
+      return data.keys().hasAll(['title', 'description', 'priority', 'label', 'completed', 'createdAt', 'updatedAt', 'source', 'userId']) &&
+             data.title is string &&
+             data.title.size() > 0 &&
+             data.title.size() <= 200 &&
+             data.description is string &&
+             data.description.size() <= 2000 &&
+             data.priority in ['low', 'medium', 'high', 'urgent'] &&
+             data.label is string &&
+             data.label.size() > 0 &&
+             data.label.size() <= 100 &&
+             data.completed is bool &&
+             data.createdAt is timestamp &&
+             data.updatedAt is timestamp &&
+             data.source in ['gmail', 'manual'] &&
+             data.userId is string &&
+             data.userId == request.auth.uid;
+    }
+  }
+}
