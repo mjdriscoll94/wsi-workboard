@@ -185,40 +185,44 @@ const TaskCard: React.FC<TaskCardProps> = ({
                   {task.title}
                 </Typography>
                 
-                {/* Show sender info for Gmail tasks */}
-                {task.source === 'gmail' && task.fromEmail && (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 1,
-                      display: 'flex',
-                      alignItems: 'center',
-                      fontSize: '0.8rem'
-                    }}
-                  >
-                    <PersonIcon sx={{ fontSize: 14, mr: 0.5 }} />
-                    From: {task.fromEmail}
-                  </Typography>
-                )}
+
                 
                 {/* Only show description for manual tasks, or when expanded */}
                 {(task.source !== 'gmail' || expanded) && (
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{
-                      mb: 1,
-                      display: '-webkit-box',
-                      WebkitLineClamp: expanded ? 'none' : 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      userSelect: 'none'
-                    }}
-                  >
-                    {task.description}
-                  </Typography>
+                  <>
+                    {/* Show sender info for Gmail tasks when expanded */}
+                    {task.source === 'gmail' && task.fromEmail && expanded && (
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          mb: 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          fontSize: '0.8rem'
+                        }}
+                      >
+                        <PersonIcon sx={{ fontSize: 14, mr: 0.5 }} />
+                        From: {task.fromEmail}
+                      </Typography>
+                    )}
+                    
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        mb: 1,
+                        display: '-webkit-box',
+                        WebkitLineClamp: expanded ? 'none' : 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        userSelect: 'none'
+                      }}
+                    >
+                      {task.description}
+                    </Typography>
+                  </>
                 )}
 
                 {/* Show expand button for Gmail tasks or long descriptions */}
@@ -227,6 +231,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
                     size="small"
                     onClick={handleExpandToggle}
                     sx={{ p: 0, color: 'primary.main' }}
+                    title={expanded ? "Collapse" : "Expand to see details"}
                   >
                     {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                   </IconButton>
