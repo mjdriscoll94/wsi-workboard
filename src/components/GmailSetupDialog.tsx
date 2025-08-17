@@ -143,14 +143,13 @@ const GmailSetupDialog: React.FC<GmailSetupDialogProps> = ({
             'invoicing@windsorsalesinc.com',
             'mackenzie.driscoll@windsorsalesinc.com'
           ].map(email => (
-              <Box key={email} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
-                <Typography variant="body2">{email}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {SyncService.getTimeSinceLastAccountSync(email)}
-                </Typography>
-              </Box>
-            );
-          })}
+            <Box key={email} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
+              <Typography variant="body2">{email}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {SyncService.getTimeSinceLastAccountSync(email)}
+              </Typography>
+            </Box>
+          ))}
         </Box>
 
         <Box sx={{ mt: 3 }}>
