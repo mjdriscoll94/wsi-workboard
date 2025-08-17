@@ -375,8 +375,20 @@ const Dashboard: React.FC = () => {
   return (
     <Box sx={{ flexGrow: 1, bgcolor: '#f5f5f5', minHeight: '100vh' }}>
       <AppBar position="static" sx={{ bgcolor: '#1976d2' }}>
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Toolbar sx={{ 
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'stretch', sm: 'center' },
+          gap: { xs: 1, sm: 0 }
+        }}>
+          <Typography 
+            variant="h6" 
+            component="div" 
+            sx={{ 
+              flexGrow: 1,
+              fontSize: { xs: '1.1rem', sm: '1.25rem' },
+              textAlign: { xs: 'center', sm: 'left' }
+            }}
+          >
             Gmail Task Dashboard
           </Typography>
           
@@ -385,7 +397,11 @@ const Dashboard: React.FC = () => {
               color="inherit"
               startIcon={<AccountIcon />}
               onClick={() => setAccountManagerOpen(true)}
-              sx={{ mr: 1 }}
+              sx={{ 
+                mr: { xs: 0, sm: 1 },
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                minWidth: { xs: 'auto', sm: 'auto' }
+              }}
             >
               {userEmail}
             </Button>
@@ -396,7 +412,9 @@ const Dashboard: React.FC = () => {
             startIcon={syncing ? <SyncIcon sx={{ animation: 'spin 1s linear infinite' }} /> : <EmailIcon />}
             onClick={isGmailConnected ? () => handleSyncGmail() : () => setGmailSetupOpen(true)}
             sx={{ 
-              mr: 1,
+              mr: { xs: 0, sm: 1 },
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              minWidth: { xs: 'auto', sm: 'auto' },
               '@keyframes spin': {
                 '0%': {
                   transform: 'rotate(0deg)',
@@ -413,7 +431,11 @@ const Dashboard: React.FC = () => {
 
           {/* Active email to the left of the sync button */}
           {isGmailConnected && userEmail && (
-            <Typography variant="body2" sx={{ mr: 2, opacity: 0.9 }}>
+            <Typography variant="body2" sx={{ 
+              mr: { xs: 0, sm: 2 }, 
+              opacity: 0.9,
+              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            }}>
               {userEmail}
             </Typography>
           )}
@@ -423,7 +445,11 @@ const Dashboard: React.FC = () => {
               color="inherit"
               startIcon={<LogoutIcon />}
               onClick={handleGmailDisconnect}
-              sx={{ mr: 1 }}
+              sx={{ 
+                mr: { xs: 0, sm: 1 },
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                minWidth: { xs: 'auto', sm: 'auto' }
+              }}
             >
               Disconnect
             </Button>
@@ -433,18 +459,26 @@ const Dashboard: React.FC = () => {
             color="inherit"
             startIcon={<LogoutIcon />}
             onClick={handleFirebaseLogout}
-            sx={{ ml: 'auto' }}
+            sx={{ 
+              ml: { xs: 0, sm: 'auto' },
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
+              minWidth: { xs: 'auto', sm: 'auto' }
+            }}
           >
             Logout
           </Button>
         </Toolbar>
       </AppBar>
 
-      <Box sx={{ mt: 3, mb: 3, px: 3 }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box sx={{ mt: 3, mb: 3, px: { xs: 2, sm: 3 } }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 2, sm: 3 } }}>
             {/* Top row with FOLLOW UP and SCHEDULE CALL sections */}
-            <Box sx={{ display: 'flex', gap: 3 }}>
-              {/* FOLLOW UP section - left half */}
+            <Box sx={{ 
+              display: 'flex', 
+              gap: { xs: 2, sm: 3 },
+              flexDirection: { xs: 'column', sm: 'row' } // Stack vertically on mobile
+            }}>
+              {/* FOLLOW UP section */}
               {(() => {
                 const followUpSection = taskSections.find(section => section.title === 'FOLLOW UP');
                 // If FOLLOW UP section doesn't exist, create it
@@ -456,7 +490,10 @@ const Dashboard: React.FC = () => {
                     tasks: []
                   };
                   return (
-                    <Box key="follow-up" sx={{ width: '50%' }}>
+                    <Box key="follow-up" sx={{ 
+                      width: { xs: '100%', sm: '50%' },
+                      minWidth: 0
+                    }}>
                       <TaskSectionComponent
                         section={defaultFollowUp}
                         onTaskUpdate={(taskId: string, updates: Partial<Task>) => TaskService.updateTask(taskId, updates)}
@@ -467,7 +504,10 @@ const Dashboard: React.FC = () => {
                   );
                 }
                 return (
-                  <Box key={followUpSection.id} sx={{ width: '50%' }}>
+                  <Box key={followUpSection.id} sx={{ 
+                    width: { xs: '100%', sm: '50%' },
+                    minWidth: 0
+                  }}>
                     <TaskSectionComponent
                       section={followUpSection}
                       onTaskUpdate={(taskId: string, updates: Partial<Task>) => TaskService.updateTask(taskId, updates)}
@@ -478,7 +518,7 @@ const Dashboard: React.FC = () => {
                 );
               })()}
 
-              {/* SCHEDULE CALL section - right half */}
+              {/* SCHEDULE CALL section */}
               {(() => {
                 const scheduleCallSection = taskSections.find(section => section.title === 'SCHEDULE CALL');
                 // If SCHEDULE CALL section doesn't exist, create it
@@ -490,7 +530,10 @@ const Dashboard: React.FC = () => {
                     tasks: []
                   };
                   return (
-                    <Box key="schedule-call" sx={{ width: '50%' }}>
+                    <Box key="schedule-call" sx={{ 
+                      width: { xs: '100%', sm: '50%' },
+                      minWidth: 0
+                    }}>
                       <TaskSectionComponent
                         section={defaultScheduleCall}
                         onTaskUpdate={(taskId: string, updates: Partial<Task>) => TaskService.updateTask(taskId, updates)}
@@ -501,7 +544,10 @@ const Dashboard: React.FC = () => {
                   );
                 }
                 return (
-                  <Box key={scheduleCallSection.id} sx={{ width: '50%' }}>
+                  <Box key={scheduleCallSection.id} sx={{ 
+                    width: { xs: '100%', sm: '50%' },
+                    minWidth: 0
+                  }}>
                     <TaskSectionComponent
                       section={scheduleCallSection}
                       onTaskUpdate={(taskId: string, updates: Partial<Task>) => TaskService.updateTask(taskId, updates)}
@@ -513,12 +559,18 @@ const Dashboard: React.FC = () => {
               })()}
             </Box>
             
-            {/* Main workflow sections - 8 columns */}
+            {/* Main workflow sections - responsive grid */}
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(8, 1fr)', // 8 equal columns
-                gap: 2, // Reduced gap to fit more columns
+                gridTemplateColumns: {
+                  xs: '1fr',                    // Mobile: 1 column
+                  sm: 'repeat(2, 1fr)',         // Small tablet: 2 columns
+                  md: 'repeat(4, 1fr)',         // Medium tablet: 4 columns
+                  lg: 'repeat(6, 1fr)',         // Large tablet: 6 columns
+                  xl: 'repeat(8, 1fr)',         // Desktop: 8 columns
+                },
+                gap: { xs: 2, sm: 2, md: 2, lg: 2, xl: 2 },
                 width: '100%'
               }}
             >
