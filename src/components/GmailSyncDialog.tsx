@@ -156,7 +156,7 @@ const GmailSyncDialog: React.FC<GmailSyncDialogProps> = ({
             icon={<ScheduleIcon />}
           >
             <Typography variant="body2">
-              <strong>Active account:</strong> {activeEmail || 'Unknown'} • <strong>Last sync:</strong> {accountSyncStatus.lastSyncTime ? new Date(accountSyncStatus.lastSyncTime).toLocaleString() : 'Never'}
+              <strong>Active account:</strong> {activeEmail || 'Unknown'} • <strong>Last sync:</strong> {activeEmail ? SyncService.getTimeSinceLastAccountSync(activeEmail) : 'Never'}
               {accountSyncStatus.totalTasksImported > 0 && (
                 <span> • {accountSyncStatus.totalTasksImported} tasks imported total</span>
               )}

@@ -324,12 +324,14 @@ const Dashboard: React.FC = () => {
           accountStatus.lastEmailTime = latestEmailTime;
           accountStatus.totalTasksImported += totalImported;
           accountStatus.syncInProgress = false;
+          accountStatus.lastSyncTime = new Date(); // Always update last sync time
           SyncService.saveAccountSyncStatus(activeEmail, accountStatus);
         }
       } else {
         SyncService.updateSyncProgress(false);
         if (accountStatus && activeEmail) {
           accountStatus.syncInProgress = false;
+          accountStatus.lastSyncTime = new Date(); // Always update last sync time even if no new messages
           SyncService.saveAccountSyncStatus(activeEmail, accountStatus);
         }
       }

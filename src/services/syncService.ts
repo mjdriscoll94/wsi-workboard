@@ -128,8 +128,41 @@ export class SyncService {
     return 'Just now';
   }
 
+  // Get time since last sync for a specific account
+  static getTimeSinceLastAccountSync(email: string): string {
+    const status = this.getAccountSyncStatus(email);
+    if (!status.lastSyncTime) return 'Never';
+
+    const diffMs = Date.now() - status.lastSyncTime.getTime();
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMinutes / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffMinutes > 0) return `${diffMinutes} minute${diffMinutes > 1 ? 's' : ''} ago`;
+    return 'Just now';
+  }
+
   // Clear sync data (for testing or reset)
   static clearSyncData(): void {
     localStorage.removeItem(SYNC_STATUS_KEY);
+  }
+
+  // Clear per-account sync data (for testing or reset)
+  static clearAccountSyncData(email: string): void {
+    localStorage.removeItem(this.ACCOUNT_STATUS_KEY_PREFIX + email);
+  }
+
+  // Clear all sync data (for testing or reset)
+  static clearAllSyncData(): void {
+    this.clearSyncData();
+    // Clear all account-specific sync data
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith(this.ACCOUNT_STATUS_KEY_PREFIX)) {
+        localStorage.removeItem(key);
+      }
+    });
   }
 }

@@ -142,13 +142,11 @@ const GmailSetupDialog: React.FC<GmailSetupDialogProps> = ({
             'windsor@windsorsalesinc.com',
             'invoicing@windsorsalesinc.com',
             'mackenzie.driscoll@windsorsalesinc.com'
-          ].map(email => {
-            const status = SyncService.getAccountSyncStatus(email);
-            return (
+          ].map(email => (
               <Box key={email} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.5 }}>
                 <Typography variant="body2">{email}</Typography>
                 <Typography variant="body2" color="text.secondary">
-                  {status.lastEmailTime ? new Date(status.lastEmailTime).toLocaleString() : 'Never'}
+                  {SyncService.getTimeSinceLastAccountSync(email)}
                 </Typography>
               </Box>
             );
