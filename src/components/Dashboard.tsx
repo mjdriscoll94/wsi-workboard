@@ -361,8 +361,8 @@ const Dashboard: React.FC = () => {
     setSnackbarOpen(true);
   };
 
-  // Don't render until tasks are loaded and have proper IDs
-  if (loading || tasks.length === 0 || tasks.some(t => !t.id)) {
+  // Don't render until tasks are loaded and have proper IDs (allow empty task collections)
+  if (loading || tasks.some(t => !t.id)) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
         <CircularProgress size={60} />
@@ -596,6 +596,43 @@ const Dashboard: React.FC = () => {
                 );
               })}
             </Box>
+            
+            {/* Empty state message when no tasks exist */}
+            {tasks.length === 0 && (
+              <Box sx={{ 
+                textAlign: 'center', 
+                py: 8, 
+                px: 3,
+                bgcolor: 'background.paper',
+                borderRadius: 2,
+                mt: 3
+              }}>
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  No tasks yet
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                  Get started by creating your first task or connecting Gmail to import emails
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => setCreateTaskOpen(true)}
+                  >
+                    Create Task
+                  </Button>
+                  {!isGmailConnected && (
+                    <Button
+                      variant="outlined"
+                      startIcon={<EmailIcon />}
+                      onClick={() => setGmailSetupOpen(true)}
+                    >
+                      Connect Gmail
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+            )}
             
             {/* We've removed the "other sections" grid as we only want to show our main workflow sections */}
           </Box>
