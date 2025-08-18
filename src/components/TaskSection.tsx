@@ -3,8 +3,13 @@ import {
   Paper,
   Typography,
   Box,
-  Badge
+  Badge,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { TaskSection as TaskSectionType, Task } from '../types';
 import TaskCard from './TaskCard';
 
@@ -21,6 +26,52 @@ const TaskSection: React.FC<TaskSectionProps> = ({
   onTaskDelete,
   availableLabels = []
 }) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+
+  const renderTasks = (isModal: boolean) => {
+    if (section.title === 'FOLLOW UP' || section.title === 'SCHEDULE CALL') {
+      return (
+        <Box sx={{ 
+          display: 'grid', 
+          gridTemplateColumns: isModal ? 'repeat(3, 1fr)' : 'repeat(3, 1fr)', 
+          gap: 2,
+          width: '100%'
+        }}>
+          {section.tasks.map((task, index) => {
+            console.log(`Rendering task in ${section.title}:`, { taskId: task.id, index, hasId: !!task.id });
+            return (
+              <TaskCard
+                key={task.id}
+                task={task}
+                index={index}
+                onUpdate={onTaskUpdate}
+                onDelete={onTaskDelete}
+                isCompleted={task.completed}
+                availableLabels={availableLabels}
+              />
+            );
+          })}
+        </Box>
+      );
+    }
+
+    // Single column layout for all other sections
+    return section.tasks.map((task, index) => {
+      console.log(`Rendering task in ${section.title}:`, { taskId: task.id, index, hasId: !!task.id });
+      return (
+        <TaskCard
+          key={task.id}
+          task={task}
+          index={index}
+          onUpdate={onTaskUpdate}
+          onDelete={onTaskDelete}
+          isCompleted={task.completed}
+          availableLabels={availableLabels}
+        />
+      );
+    });
+  };
+
   return (
     <Paper
       elevation={2}
@@ -43,8 +94,11 @@ const TaskSection: React.FC<TaskSectionProps> = ({
           sx={{
             fontWeight: 600,
             color: '#333',
-            fontSize: '1.1rem'
+            fontSize: '1.1rem',
+            cursor: 'pointer',
+            '&:hover': { textDecoration: 'underline' }
           }}
+          onClick={() => setModalOpen(true)}
         >
           {section.title}
         </Typography>
@@ -60,117 +114,141 @@ const TaskSection: React.FC<TaskSectionProps> = ({
         />
       </Box>
 
+      <Box
+        sx={{
+          bgcolor: 'transparent',
+          borderRadius: 1,
+          p: 1,
+          flex: 1,
+          overflowY: 'auto', // Always scrollable when content exceeds height
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+            borderRadius: '4px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#888',
+            borderRadius: '4px',
+            '&:hover': {
+              background: '#666',
+            },
+          },
+        }}
+      >
+        {/* Empty State Message */}
+        {section.tasks.length === 0 && (
           <Box
             sx={{
-              bgcolor: 'transparent',
-              borderRadius: 1,
-              p: 1,
-              flex: 1,
-              overflowY: 'auto', // Always scrollable when content exceeds height
-              '&::-webkit-scrollbar': {
-                width: '8px',
-              },
-              '&::-webkit-scrollbar-track': {
-                background: '#f1f1f1',
-                borderRadius: '4px',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                background: '#888',
-                borderRadius: '4px',
-                '&:hover': {
-                  background: '#666',
-                },
-              },
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: ['FOLLOW UP', 'SCHEDULE CALL'].includes(section.title) ? 60 : 200,
+              textAlign: 'center',
+              p: 3
             }}
           >
-            {/* Empty State Message */}
-            {section.tasks.length === 0 && (
-                              <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: ['FOLLOW UP', 'SCHEDULE CALL'].includes(section.title) ? 60 : 200,
-                    textAlign: 'center',
-                    p: 3
-                  }}
-                >
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: 'text.secondary',
-                    fontStyle: 'italic',
-                    opacity: 0.7
-                  }}
-                >
-                  {section.title === 'FOLLOW UP' 
-                    ? 'No items to follow up on currently.'
-                    : section.title === 'SCHEDULE CALL'
-                    ? 'No calls to schedule currently.'
-                    : section.title === 'INBOX'
-                    ? 'No new emails.'
-                    : section.title === 'ORDER'
-                    ? 'No orders to process.'
-                    : section.title === 'SHIPPING'
-                    ? 'No shipping tasks.'
-                    : section.title === 'AR'
-                    ? 'No accounts receivable items.'
-                    : section.title === 'AP'
-                    ? 'No accounts payable items.'
-                    : section.title === 'PROD INFO'
-                    ? 'No product information tasks.'
-                    : section.title === 'BIDDING'
-                    ? 'No bidding activities.'
-                    : section.title === 'ONE OFF'
-                    ? 'No one-off tasks.'
-                    : `No items in ${section.title}.`
-                  }
-                </Typography>
-              </Box>
-            )}
-
-            {/* All Tasks */}
-            {section.title === 'FOLLOW UP' || section.title === 'SCHEDULE CALL' ? (
-              /* 3-column layout for FOLLOW UP and SCHEDULE CALL */
-              <Box sx={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(3, 1fr)', 
-                gap: 2,
-                width: '100%'
-              }}>
-                {section.tasks.map((task, index) => {
-                  console.log(`Rendering task in ${section.title}:`, { taskId: task.id, index, hasId: !!task.id });
-                  return (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      index={index}
-                      onUpdate={onTaskUpdate}
-                      onDelete={onTaskDelete}
-                      isCompleted={task.completed}
-                      availableLabels={availableLabels}
-                    />
-                  );
-                })}
-              </Box>
-            ) : (
-              /* Single column layout for all other sections */
-              section.tasks.map((task, index) => {
-                console.log(`Rendering task in ${section.title}:`, { taskId: task.id, index, hasId: !!task.id });
-                return (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    index={index}
-                    onUpdate={onTaskUpdate}
-                    onDelete={onTaskDelete}
-                    isCompleted={task.completed}
-                    availableLabels={availableLabels}
-                  />
-                );
-              })
-            )}
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                fontStyle: 'italic',
+                opacity: 0.7
+              }}
+            >
+              {section.title === 'FOLLOW UP' 
+                ? 'No items to follow up on currently.'
+                : section.title === 'SCHEDULE CALL'
+                ? 'No calls to schedule currently.'
+                : section.title === 'INBOX'
+                ? 'No new emails.'
+                : section.title === 'ORDER'
+                ? 'No orders to process.'
+                : section.title === 'SHIPPING'
+                ? 'No shipping tasks.'
+                : section.title === 'AR'
+                ? 'No accounts receivable items.'
+                : section.title === 'AP'
+                ? 'No accounts payable items.'
+                : section.title === 'PROD INFO'
+                ? 'No product information tasks.'
+                : section.title === 'BIDDING'
+                ? 'No bidding activities.'
+                : section.title === 'ONE OFF'
+                ? 'No one-off tasks.'
+                : `No items in ${section.title}.`
+              }
+            </Typography>
           </Box>
+        )}
+
+        {/* All Tasks */}
+        {section.title === 'FOLLOW UP' || section.title === 'SCHEDULE CALL' ? (
+          /* 3-column layout for FOLLOW UP and SCHEDULE CALL */
+          <Box sx={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: 2,
+            width: '100%'
+          }}>
+            {section.tasks.map((task, index) => {
+              console.log(`Rendering task in ${section.title}:`, { taskId: task.id, index, hasId: !!task.id });
+              return (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  index={index}
+                  onUpdate={onTaskUpdate}
+                  onDelete={onTaskDelete}
+                  isCompleted={task.completed}
+                  availableLabels={availableLabels}
+                />
+              );
+            })}
+          </Box>
+        ) : (
+          /* Single column layout for all other sections */
+          section.tasks.map((task, index) => {
+            console.log(`Rendering task in ${section.title}:`, { taskId: task.id, index, hasId: !!task.id });
+            return (
+              <TaskCard
+                key={task.id}
+                task={task}
+                index={index}
+                onUpdate={onTaskUpdate}
+                onDelete={onTaskDelete}
+                isCompleted={task.completed}
+                availableLabels={availableLabels}
+              />
+            );
+          })
+        )}
+      </Box>
+
+      {/* Modal for easier viewing/management */}
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} maxWidth="lg" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              {section.title}
+            </Typography>
+            <Badge color="primary" badgeContent={section.tasks.length} />
+          </Box>
+          <IconButton onClick={() => setModalOpen(false)}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          {/* Reuse same rendering with a roomy layout */}
+          <Box sx={{
+            maxHeight: '70vh',
+            overflow: 'auto'
+          }}>
+            {renderTasks(true)}
+          </Box>
+        </DialogContent>
+      </Dialog>
     </Paper>
   );
 };
