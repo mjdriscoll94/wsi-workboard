@@ -73,3 +73,11 @@ export interface SyncStatus {
   totalTasksImported: number;
   selectedLabels: string[];
 }
+
+export interface BlockedEmail {
+  id: string;
+  emailAddress: string;
+  reason?: string;
+  blockedAt: Date;
+  blockedBy: string; // User ID who blocked it
+}

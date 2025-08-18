@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Grid,
   Typography,
   AppBar,
   Toolbar,
@@ -16,7 +15,8 @@ import {
   Email as EmailIcon,
   Logout as LogoutIcon,
   AccountCircle as AccountIcon,
-  Sync as SyncIcon
+  Sync as SyncIcon,
+  Block as BlockIcon
 } from '@mui/icons-material';
 
 import { Task, TaskSection } from '../types';
@@ -29,6 +29,7 @@ import GmailSyncDialog from './GmailSyncDialog';
 import AccountManager from './AccountManager';
 import { SyncService } from '../services/syncService';
 import { useAuth } from '../contexts/AuthContext';
+import BlockedEmailsDialog from './BlockedEmailsDialog';
 
 const Dashboard: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -38,6 +39,7 @@ const Dashboard: React.FC = () => {
   const [gmailSetupOpen, setGmailSetupOpen] = useState(false);
   const [gmailSyncOpen, setGmailSyncOpen] = useState(false);
   const [accountManagerOpen, setAccountManagerOpen] = useState(false);
+  const [blockedEmailsOpen, setBlockedEmailsOpen] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -300,7 +302,13 @@ const Dashboard: React.FC = () => {
           const labelName = matchingLabel || 'Gmail';
 
           const activeEmail = await GmailService.getActiveAccountEmail();
-          const taskData = GmailService.convertMessageToTask(message, labelName, activeEmail || undefined);
+          const taskData = await GmailService.convertMessageToTask(message, labelName, activeEmail || undefined);
+          
+          // Skip blocked/spam emails
+          if (!taskData) {
+            console.log(`Skipping blocked/spam email from: ${message.id}`);
+            continue;
+          }
           
           // Create task from email
           await TaskService.createTaskFromEmail(taskData);
@@ -406,6 +414,21 @@ const Dashboard: React.FC = () => {
               }}
             >
               {userEmail}
+            </Button>
+          )}
+          
+          {isGmailConnected && (
+            <Button
+              color="inherit"
+              startIcon={<BlockIcon />}
+              onClick={() => setBlockedEmailsOpen(true)}
+              sx={{ 
+                mr: { xs: 0, sm: 1 },
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                minWidth: { xs: 'auto', sm: 'auto' }
+              }}
+            >
+              Blocked Emails
             </Button>
           )}
           
@@ -674,6 +697,11 @@ const Dashboard: React.FC = () => {
           setUserEmail(email);
           showSnackbar(`Switched to ${email}`, 'success');
         }}
+      />
+
+      <BlockedEmailsDialog
+        open={blockedEmailsOpen}
+        onClose={() => setBlockedEmailsOpen(false)}
       />
 
       <Snackbar

@@ -12,9 +12,7 @@ import {
   Tooltip,
   Collapse,
   Select,
-  FormControl,
-  TextField,
-  ClickAwayListener
+  FormControl
 } from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
@@ -28,6 +26,7 @@ import {
 import { Task, PRIORITIES } from '../types';
 import { format } from 'date-fns';
 import { calculateTaskAge, getAgeDisplayText, getAgeTooltip } from '../utils/taskAgeUtils';
+import { BlockedEmailService } from '../services/blockedEmailService';
 
 interface TaskCardProps {
   task: Task;
@@ -133,10 +132,7 @@ const TaskCard: React.FC<TaskCardProps> = ({
     setTempLabel(task.label);
   };
 
-  const handleLabelCancel = () => {
-    setEditingLabel(false);
-    setTempLabel(task.label);
-  };
+
 
   const handleSnooze = (days: number) => {
     const snoozeDate = new Date();
@@ -147,6 +143,25 @@ const TaskCard: React.FC<TaskCardProps> = ({
 
   const handleClearSnooze = () => {
     onUpdate(task.id, { snoozeUntil: undefined });
+    handleMenuClose();
+  };
+
+  const handleMarkAsSpam = async () => {
+    if (task.source === 'gmail' && task.fromEmail) {
+      try {
+        // Block the email address
+        await BlockedEmailService.blockEmail(task.fromEmail, 'Marked as spam by user');
+        
+        // Delete the current task
+        onDelete(task.id);
+        
+        // Show success message
+        // You might want to add a snackbar or notification here
+        console.log(`Marked ${task.fromEmail} as spam and deleted task`);
+      } catch (error) {
+        console.error('Error marking email as spam:', error);
+      }
+    }
     handleMenuClose();
   };
 
@@ -501,6 +516,14 @@ const TaskCard: React.FC<TaskCardProps> = ({
                 <MenuItem onClick={handleClearSnooze}>
                   <SnoozeIcon sx={{ mr: 1, fontSize: 18 }} />
                   Clear Snooze
+                </MenuItem>
+              )}
+              
+              {/* Mark as Spam (only for Gmail tasks) */}
+              {task.source === 'gmail' && task.fromEmail && (
+                <MenuItem onClick={handleMarkAsSpam} sx={{ color: 'error.main' }}>
+                  <DeleteIcon sx={{ mr: 1, fontSize: 18 }} />
+                  Mark as Spam
                 </MenuItem>
               )}
               

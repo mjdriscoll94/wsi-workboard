@@ -1,4 +1,5 @@
 import { gapi } from 'gapi-script';
+import { BlockedEmailService } from './blockedEmailService';
 
 // Google Identity Services types
 declare global {
@@ -470,7 +471,7 @@ export class GmailService {
   }
 
   // Convert Gmail message to task data
-  static convertMessageToTask(message: GmailMessage, defaultLabel: string, accountEmail?: string): {
+  static async convertMessageToTask(message: GmailMessage, defaultLabel: string, accountEmail?: string): Promise<{
     title: string;
     description: string;
     priority: 'low' | 'medium' | 'high' | 'urgent';
@@ -480,8 +481,24 @@ export class GmailService {
     emailSubject: string;
     emailSnippet: string;
     accountEmail?: string;
-  } {
+  } | null> {
     const headers = this.parseHeaders(message.payload.headers);
+    
+    // Check if sender is blocked/spam
+    const fromEmail = headers.from;
+    if (fromEmail) {
+      try {
+        const isBlocked = await BlockedEmailService.isEmailBlocked(fromEmail);
+        if (isBlocked) {
+          console.log(`Skipping blocked email from: ${fromEmail}`);
+          return null; // Return null to indicate this message should be skipped
+        }
+      } catch (error) {
+        console.warn('Error checking blocked email status:', error);
+        // Continue processing if there's an error checking blocked status
+      }
+    }
+    
     const bodyText = this.extractBodyText(message);
     
     // Determine priority based on keywords or labels
