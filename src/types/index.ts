@@ -16,6 +16,9 @@ export interface Task {
   emailSnippet?: string;
   // Gmail account this task was synced from (if source === 'gmail')
   accountEmail?: string;
+  // Status change tracking for age-based color coding
+  lastStatusChange?: Date;
+  snoozeUntil?: Date;
 }
 
 export interface TaskSection {

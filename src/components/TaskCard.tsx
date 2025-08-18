@@ -22,10 +22,12 @@ import {
   Person as PersonIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
-  Delete as DeleteIcon
+  Delete as DeleteIcon,
+  Snooze as SnoozeIcon
 } from '@mui/icons-material';
 import { Task, PRIORITIES } from '../types';
 import { format } from 'date-fns';
+import { calculateTaskAge, getAgeDisplayText, getAgeTooltip } from '../utils/taskAgeUtils';
 
 interface TaskCardProps {
   task: Task;
@@ -62,6 +64,9 @@ const TaskCard: React.FC<TaskCardProps> = ({
   };
   const accountEmail = task.accountEmail || '';
   const accountBorderColor = accountColorMap[accountEmail] || priorityColor;
+  
+  // Calculate age-based styling
+  const ageInfo = calculateTaskAge(task);
 
   // Update tempLabel when task changes
   useEffect(() => {
@@ -133,6 +138,18 @@ const TaskCard: React.FC<TaskCardProps> = ({
     setTempLabel(task.label);
   };
 
+  const handleSnooze = (days: number) => {
+    const snoozeDate = new Date();
+    snoozeDate.setDate(snoozeDate.getDate() + days);
+    onUpdate(task.id, { snoozeUntil: snoozeDate });
+    handleMenuClose();
+  };
+
+  const handleClearSnooze = () => {
+    onUpdate(task.id, { snoozeUntil: undefined });
+    handleMenuClose();
+  };
+
 
 
   // Log task info for debugging
@@ -143,8 +160,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
       sx={{
         mb: 1.5,
         opacity: isCompleted ? 0.7 : 1,
-        bgcolor: isCompleted ? '#f5f5f5' : '#fff',
-        border: '2px solid transparent',
+        bgcolor: isCompleted ? '#f5f5f5' : ageInfo.backgroundColor,
+        border: `2px solid ${ageInfo.borderColor}`,
         borderLeft: `6px solid ${accountBorderColor}`,
         transition: 'all 0.2s ease',
         '&:hover': {
@@ -306,6 +323,27 @@ const TaskCard: React.FC<TaskCardProps> = ({
                 </Tooltip>
               )}
               
+              {/* Age Indicator */}
+              {(ageInfo.shouldShowWarning || ageInfo.isSnoozed) && (
+                <Tooltip title={getAgeTooltip(task)}>
+                  <Chip
+                    label={getAgeDisplayText(task)}
+                    size="small"
+                    variant="outlined"
+                    icon={ageInfo.isSnoozed ? <SnoozeIcon /> : undefined}
+                    sx={{
+                      bgcolor: ageInfo.isSnoozed ? '#f5f5f5' : 
+                               ageInfo.shouldShowUrgent ? '#ffebee' : '#fff3e0',
+                      color: ageInfo.isSnoozed ? '#666' : 
+                             ageInfo.shouldShowUrgent ? '#d32f2f' : '#e65100',
+                      borderColor: ageInfo.borderColor,
+                      fontSize: '0.7rem',
+                      fontWeight: 500
+                    }}
+                  />
+                </Tooltip>
+              )}
+              
               {/* Inline Label Editor */}
               {editingLabel ? (
                 <FormControl size="small" sx={{ minWidth: 80 }}>
@@ -435,6 +473,37 @@ const TaskCard: React.FC<TaskCardProps> = ({
                   </Box>
                 </MenuItem>
               ))}
+              
+              {/* Snooze Options */}
+              {(ageInfo.shouldShowWarning || ageInfo.shouldShowUrgent) && (
+                <>
+                  <MenuItem disabled>
+                    <Typography variant="subtitle2" color="text.secondary">
+                      Snooze Warning
+                    </Typography>
+                  </MenuItem>
+                  <MenuItem onClick={() => handleSnooze(1)}>
+                    <SnoozeIcon sx={{ mr: 1, fontSize: 18 }} />
+                    Snooze for 1 day
+                  </MenuItem>
+                  <MenuItem onClick={() => handleSnooze(3)}>
+                    <SnoozeIcon sx={{ mr: 1, fontSize: 18 }} />
+                    Snooze for 3 days
+                  </MenuItem>
+                  <MenuItem onClick={() => handleSnooze(7)}>
+                    <SnoozeIcon sx={{ mr: 1, fontSize: 18 }} />
+                    Snooze for 1 week
+                  </MenuItem>
+                </>
+              )}
+              
+              {ageInfo.isSnoozed && (
+                <MenuItem onClick={handleClearSnooze}>
+                  <SnoozeIcon sx={{ mr: 1, fontSize: 18 }} />
+                  Clear Snooze
+                </MenuItem>
+              )}
+              
               <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
                 <DeleteIcon sx={{ mr: 1, fontSize: 18 }} />
                 Delete

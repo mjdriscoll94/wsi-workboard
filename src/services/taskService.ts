@@ -34,7 +34,9 @@ const createTaskFromData = (id: string, data: any): Task => {
     fromEmail: data.fromEmail,
     emailSubject: data.emailSubject,
     emailSnippet: data.emailSnippet,
-    accountEmail: data.accountEmail
+    accountEmail: data.accountEmail,
+    lastStatusChange: data.lastStatusChange?.toDate() || data.createdAt?.toDate() || new Date(),
+    snoozeUntil: data.snoozeUntil?.toDate() || undefined
   };
   
   console.log('Creating task from data:', { id, taskId: task.id, hasId: !!task.id });
@@ -114,10 +116,17 @@ export class TaskService {
   static async updateTask(taskId: string, updates: Partial<Task>): Promise<void> {
     try {
       const taskRef = doc(db, TASKS_COLLECTION, taskId);
-      const updateData = {
+      
+      // Track status changes for age-based color coding
+      const updateData: any = {
         ...updates,
         updatedAt: Timestamp.fromDate(new Date())
       };
+      
+      // If label is changing, update lastStatusChange
+      if (updates.label) {
+        updateData.lastStatusChange = Timestamp.fromDate(new Date());
+      }
       
       await updateDoc(taskRef, updateData);
     } catch (error) {
