@@ -433,9 +433,28 @@ export class GmailService {
       return acc;
     }, {} as Record<string, string>);
 
+    // Extract just the email address from the from field
+    const extractEmail = (emailString: string): string => {
+      if (!emailString) return '';
+      
+      // Look for email pattern in angle brackets: "John Doe <john@example.com>"
+      const emailMatch = emailString.match(/<(.+?)>/);
+      if (emailMatch) {
+        return emailMatch[1].trim();
+      }
+      
+      // If no angle brackets, look for email pattern directly
+      const directEmailMatch = emailString.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+      if (directEmailMatch) {
+        return directEmailMatch[0].trim();
+      }
+      
+      return emailString.trim();
+    };
+
     return {
       subject: headerMap['subject'] || '',
-      from: headerMap['from'] || '',
+      from: extractEmail(headerMap['from'] || ''),
       to: headerMap['to'] || '',
       date: headerMap['date'] || ''
     };

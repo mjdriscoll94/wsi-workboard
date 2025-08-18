@@ -156,7 +156,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
         onDelete(task.id);
         
         // Show success message
-        // You might want to add a snackbar or notification here
         console.log(`Marked ${task.fromEmail} as spam and deleted task`);
       } catch (error) {
         console.error('Error marking email as spam:', error);

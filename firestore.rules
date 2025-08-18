@@ -23,6 +23,15 @@ service cloud.firestore {
       allow read, write: if true;
     }
     
+    // Rules for blocked emails collection
+    match /blockedEmails/{blockedEmailId} {
+      // Allow authenticated users to read and write blocked emails
+      allow read, write: if request.auth != null;
+      
+      // Validate blocked email data structure on write operations
+      allow create, update: if validateBlockedEmailData(resource.data);
+    }
+    
     // Function to validate task data structure
     function validateTaskData(data) {
       return data.keys().hasAll(['title', 'description', 'priority', 'label', 'completed', 'createdAt', 'updatedAt', 'source']) &&
@@ -34,6 +43,15 @@ service cloud.firestore {
              data.createdAt is timestamp &&
              data.updatedAt is timestamp &&
              data.source in ['gmail', 'manual'];
+    }
+    
+    // Function to validate blocked email data structure
+    function validateBlockedEmailData(data) {
+      return data.keys().hasAll(['emailAddress', 'blockedAt', 'blockedBy']) &&
+             data.emailAddress is string &&
+             data.emailAddress.matches('^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$') &&
+             data.blockedAt is timestamp &&
+             data.blockedBy is string;
     }
   }
 }
