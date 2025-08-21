@@ -256,26 +256,43 @@ const TaskCard: React.FC<TaskCardProps> = ({
                   </>
                 )}
 
-                {/* Show expand button for Gmail tasks or long descriptions */}
-                {(task.source === 'gmail' || task.description.length > 100) && (
-                  <IconButton
-                    size="small"
-                    onClick={handleExpandToggle}
-                    sx={{ p: 0, color: 'primary.main' }}
-                    title={expanded ? "Collapse" : "Expand to see details"}
-                  >
-                    {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                  </IconButton>
-                )}
-              </Box>
+                              {/* Show expand button for Gmail tasks or long descriptions */}
+              {(task.source === 'gmail' || task.description.length > 100) && (
+                <IconButton
+                  size="small"
+                  onClick={handleExpandToggle}
+                  sx={{ p: 0, color: 'primary.main' }}
+                  title={expanded ? "Collapse" : "Expand to see details"}
+                >
+                  {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                </IconButton>
+              )}
+            </Box>
 
-              <IconButton
-                size="small"
-                onClick={handleMenuClick}
-                sx={{ ml: 1 }}
-              >
-                <MoreVertIcon fontSize="small" />
-              </IconButton>
+            {/* Delete Button */}
+            <IconButton
+              size="small"
+              onClick={handleDelete}
+              sx={{ 
+                ml: 1, 
+                color: 'error.main',
+                '&:hover': {
+                  bgcolor: 'error.light',
+                  color: 'white'
+                }
+              }}
+              title="Delete task"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+
+            <IconButton
+              size="small"
+              onClick={handleMenuClick}
+              sx={{ ml: 1 }}
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
@@ -525,11 +542,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
                   Mark as Spam
                 </MenuItem>
               )}
-              
-              <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-                <DeleteIcon sx={{ mr: 1, fontSize: 18 }} />
-                Delete
-              </MenuItem>
             </Menu>
           </CardContent>
         </Card>
