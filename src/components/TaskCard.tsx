@@ -269,23 +269,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
               )}
             </Box>
 
-            {/* Delete Button */}
-            <IconButton
-              size="small"
-              onClick={handleDelete}
-              sx={{ 
-                ml: 1, 
-                color: 'error.main',
-                '&:hover': {
-                  bgcolor: 'error.light',
-                  color: 'white'
-                }
-              }}
-              title="Delete task"
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-
             <IconButton
               size="small"
               onClick={handleMenuClick}
@@ -426,6 +409,24 @@ const TaskCard: React.FC<TaskCardProps> = ({
                   <EmailIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
                 </Tooltip>
               )}
+              
+              {/* Delete Button - positioned at bottom right */}
+              <Box sx={{ marginLeft: 'auto' }}>
+                <IconButton
+                  size="small"
+                  onClick={handleDelete}
+                  sx={{ 
+                    color: 'error.main',
+                    '&:hover': {
+                      bgcolor: 'error.light',
+                      color: 'white'
+                    }
+                  }}
+                  title="Delete task"
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </Box>
             </Box>
 
             <Collapse in={expanded} timeout="auto" unmountOnExit>
