@@ -505,17 +505,24 @@ export class GmailService {
     
     // Check if sender is blocked/spam
     const fromEmail = headers.from;
+    console.log(`Processing Gmail message from: ${fromEmail}, subject: ${headers.subject}`);
+    
     if (fromEmail) {
       try {
+        console.log(`Checking if email is blocked: ${fromEmail}`);
         const isBlocked = await BlockedEmailService.isEmailBlocked(fromEmail);
+        console.log(`Email ${fromEmail} blocked status: ${isBlocked}`);
+        
         if (isBlocked) {
-          console.log(`Skipping blocked email from: ${fromEmail}`);
+          console.log(`🚫 Skipping blocked email from: ${fromEmail} - subject: ${headers.subject}`);
           return null; // Return null to indicate this message should be skipped
         }
       } catch (error) {
         console.warn('Error checking blocked email status:', error);
         // Continue processing if there's an error checking blocked status
       }
+    } else {
+      console.warn('No fromEmail found in headers:', headers);
     }
     
     const bodyText = this.extractBodyText(message);
@@ -536,6 +543,8 @@ export class GmailService {
     // In multi-account scenarios we can also store the active connected account separately.
     const accountEmailGuess = accountEmail || (headers.to || '').split(/[\s,<>]/).find(p => p.includes('@')) || undefined;
 
+    console.log(`✅ Creating task for email from: ${fromEmail}, subject: ${headers.subject}`);
+    
     return {
       title: headers.subject || 'No Subject',
       description: bodyText.substring(0, 500) + (bodyText.length > 500 ? '...' : ''),

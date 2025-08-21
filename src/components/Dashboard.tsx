@@ -302,11 +302,13 @@ const Dashboard: React.FC = () => {
           const labelName = matchingLabel || 'Gmail';
 
           const activeEmail = await GmailService.getActiveAccountEmail();
+          console.log(`Processing Gmail message ${message.id} with label: ${labelName}`);
+          
           const taskData = await GmailService.convertMessageToTask(message, labelName, activeEmail || undefined);
           
           // Skip blocked/spam emails
           if (!taskData) {
-            console.log(`Skipping blocked/spam email from: ${message.id}`);
+            console.log(`🚫 Skipping blocked/spam email from message ID: ${message.id}`);
             continue;
           }
           
